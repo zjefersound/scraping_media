@@ -1,0 +1,18 @@
+{
+    "gral":{
+        "log_level": "DEBUG",
+        "headless": true,
+        "dist_clear": false 
+    },
+    "youtube": {
+    },
+    "x": {
+        "time_ms": 6000,
+        "max_posts": 10
+
+    },
+    "tiktok": {
+        "time_ms": 2000,
+        "max_posts": 5
+    }
+}
