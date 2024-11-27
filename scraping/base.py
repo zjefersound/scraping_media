@@ -49,7 +49,7 @@ class BaseScrape(ABC):
     def struct_profile(profile: dict):
         raise NotImplementedError("Must implement in children class")
 
-    def struct_post(profile: dict):
+    def struct_post(post: dict):
         raise NotImplementedError("Must implement in children class")
 
     def _clean(raw_data):

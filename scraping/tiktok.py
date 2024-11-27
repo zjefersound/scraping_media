@@ -66,9 +66,9 @@ class Tiktok(BaseScrape):
             except Exception as e:
                 logger.error(f'Tiktok - Error scraping: {e}')
         
-        
     def __run(self, playwright: Playwright, username: str) -> None:
         headless = SETTINGS.get('gral', {}).get('headless', True)
+        wait_time = SETTINGS.get('tiktok', {}).get('time_ms', 2000)
         
         iphone_13 = playwright.devices['iPhone 13']
         browser = playwright.webkit.launch(headless=headless)
@@ -83,7 +83,7 @@ class Tiktok(BaseScrape):
         page.on('response', self.__handle_response)
         page.goto(f'https://www.tiktok.com/{username}/', wait_until='load')
         
-        page.wait_for_timeout(SETTINGS.get('tiktok', {}).get('time_ms', 2000))
+        page.wait_for_timeout(wait_time)
         
         browser.close()
 

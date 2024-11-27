@@ -1,7 +1,7 @@
 {
     "gral":{
         "log_level": "DEBUG",
-        "headless": true,
+        "headless": false,
         "dist_clear": false 
     },
     "youtube": {
@@ -14,5 +14,9 @@
     "tiktok": {
         "time_ms": 2000,
         "max_posts": 5
+    },
+    "instagram": {
+        "time_ms": 6000,
+        "max_posts": 20
     }
 }

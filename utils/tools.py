@@ -12,7 +12,7 @@ def make_dir(path: str):
         os.mkdir(path)
     return os.path.normpath(path)
     
-def save_dict(info: dict, name: str, dir_name: str = 'dist', stamp: bool = True):
+def save_dict(info: dict, name: str, dir_name: str = 'dist', stamp: bool = False):
     if not info:
         return None
     
