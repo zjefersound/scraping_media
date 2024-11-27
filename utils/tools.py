@@ -28,8 +28,8 @@ def save_dict(info: dict, name: str, dir_name: str = 'dist', stamp: bool = False
         json.dump(info, f, indent=4)
         print(f'file saved {filename}')
 
-def rm_dir():
-    shutil.rmtree('dist')
+def rm_dir(name: str):
+    shutil.rmtree(name)
 
 def assert_camelCase(info: dict) -> None:
     if isinstance(info, dict):

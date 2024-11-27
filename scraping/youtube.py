@@ -155,4 +155,4 @@ class Youtube(BaseScrape):
         }
     
     def save(self):
-        self._save('dist/youtube')
+        self._save('./dist/youtube')
