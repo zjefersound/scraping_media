@@ -1,5 +1,6 @@
 # base.py
 from datetime import datetime, timezone
+import json
 import os
 import urllib.request
 import base64
@@ -46,13 +47,13 @@ class BaseScrape(ABC):
     clean_data = None
     bs64_data = None
     
-    def struct_profile(profile: dict):
+    def struct_profile(self, profile: dict):
         raise NotImplementedError("Must implement in children class")
 
-    def struct_post(post: dict):
+    def struct_post(self, post: dict):
         raise NotImplementedError("Must implement in children class")
 
-    def _clean(raw_data):
+    def _clean(self, raw_data):
         raise NotImplementedError("Must implement in children class")
     
     def _convert_bs64(self, clean_data: dict):
@@ -112,3 +113,49 @@ class BaseScrape(ABC):
         tools.save_dict(self.clean_data, 'clean', root, stamp=False)
         tools.save_dict(self.bs64_data, 'bs64', root, stamp=False)
         self.img_handler.save(root=root)
+
+class RequestsHandler:
+    def __init__(self, base_url: str):
+        self.base_url = base_url
+
+    def make_request(self, endpoint: str, params: dict = None, headers: dict = None) -> dict:
+        """
+        Makes a GET request to the specified endpoint with optional query parameters and headers using urllib.
+        
+        The method automatically handles common exceptions like HTTP errors, timeouts, 
+        and too many redirects, logging the appropriate error message if any issue arises.
+        
+        :param endpoint: The API endpoint to which the request will be made (e.g., "/data").
+        :param params: Optional dictionary of query parameters to include in the request.
+        :param headers: Optional dictionary of HTTP headers to include in the request.
+        
+        :return: A dictionary containing the JSON response from the server, or an empty dictionary 
+                 if an error occurred or no valid response was received.
+        """
+        params = params or {}
+        headers = headers or {}
+        url = f"{self.base_url}{endpoint}"
+        
+        if params:
+            query_string = urllib.parse.urlencode(params)
+            url = f"{url}?{query_string}"
+
+        logger.info(f'RequestsHandler - Making GET request to "{url}"')
+
+        try:
+            req = urllib.request.Request(url, headers=headers)
+
+            with urllib.request.urlopen(req) as response:
+                response_data = response.read().decode('utf-8')
+                return json.loads(response_data)
+
+        except urllib.error.HTTPError as e:
+            logger.error(f'RequestsHandler - HTTPError - URL: {url}, Status Code: {e.code}, Response: {e.read().decode()}')
+        except urllib.error.URLError as e:
+            logger.error(f'RequestsHandler - URLError - URL: {url}, Error: {e.reason}')
+        except urllib.error.TimeoutError as e:
+            logger.error(f'RequestsHandler - TimeoutError - URL: {url}, Error: {e}')
+        except Exception as e:
+            logger.error(f'RequestsHandler - Unexpected error: {e}')
+
+        return {}

@@ -1,6 +1,6 @@
 {
     "gral":{
-        "log_level": "DEBUG",
+        "log_level": "ERROR",
         "headless": false,
         "dist_clear": false 
     },

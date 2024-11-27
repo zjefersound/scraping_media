@@ -123,3 +123,6 @@ class Instagram(BaseScrape):
             'profile': profile,
             'posts': posts
         }
+
+    def save(self):
+        self._save('dist/instagram')

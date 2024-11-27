@@ -44,8 +44,7 @@ def assert_camelCase(info: dict) -> None:
         for item in info:
             assert_camelCase(item)
 
-def read_settings() -> dict:
-    file_path = 'settings.json'
+def read_settings(file_path: str = "settings.json") -> dict:
     
     if not os.path.isfile(file_path):
         raise ValueError(f"Couldn't find settings file: {file_path}")
