@@ -31,6 +31,7 @@ For the settings edit the settings.json
         "img_scrape_sleep_s": 1
     },
     "youtube": {
+        "max_posts": 10
     },
     "x": {
         "time_ms": 6000,
