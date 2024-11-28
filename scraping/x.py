@@ -14,7 +14,11 @@ SETTINGS = tools.read_settings()
 
 
 class X(BaseScrape):
-    profile_img = None
+    
+    def __init__(self):
+        super().__init__()
+        self.profile_img = None
+    
     
     def struct_profile(self, profile):
         return {
@@ -51,10 +55,11 @@ class X(BaseScrape):
         }
     
     def get(self, username: str, type: Literal['raw', 'clean', 'bs64'] = 'raw'):
-        if " " in username:
-            logger.error(f'X - Username "{username}" must not have spaces. See "username" in the profile url: https://x.com/username')
+        if " " in username or not username.startswith('@'):
+            logger.error(f'X - Username "{username}" must not have spaces and starts with @. See "username" in the profile url: https://x.com/username')
             return None
         
+        username = username[1:]
         logger.info(f'X - Making Scrape for "{username}"')
         with sync_playwright() as playwright:
             self.__run(playwright, username)

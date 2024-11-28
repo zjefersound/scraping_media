@@ -1,8 +1,9 @@
 {
     "gral":{
         "log_level": "ERROR",
-        "headless": false,
-        "dist_clear": false 
+        "headless": true,
+        "dist_clear": false ,
+        "img_scrape_sleep_s": 1
     },
     "youtube": {
     },

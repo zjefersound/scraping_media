@@ -10,10 +10,11 @@ SETTINGS = tools.read_settings()
 
 
 class Youtube(BaseScrape):
-    request_handler = RequestsHandler("https://www.googleapis.com/youtube/v3")
     
     def __init__(self, api_key: str):
+        super().__init__()
         self.api_key = api_key
+        self.request_handler = RequestsHandler("https://www.googleapis.com/youtube/v3")
     
     def struct_profile(self, profile):
         snippet = profile.get('snippet', {}) 
@@ -64,9 +65,14 @@ class Youtube(BaseScrape):
         else:
             id = username
 
+        profile = self._get_profile(id)
+        posts = self._get_posts(id)
+        if not profile or not posts:
+            return None
+        
         self.raw_data = {
-            'profile_req': self._get_profile(id),
-            'posts_req': self._get_posts(id)
+            'profile_req': profile,
+            'posts_req': posts
         }
         
         return self._type(type)
@@ -123,6 +129,10 @@ class Youtube(BaseScrape):
         response = self.request_handler.make_request('/search', params=params)
         if not response:
             logger.error(f'Youtube - error fetching "__get_posts /search" for id "{id}"')
+            return None
+        
+        if response.get('error'):
+            logger.error(f'Youtube - api error "__get_posts /search" for id "{id}"')
             return None
         
         videos_items = response.get('items', [])

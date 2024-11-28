@@ -17,6 +17,9 @@ SETTINGS = tools.read_settings()
 
 class Instagram(BaseScrape):
     
+    def __init__(self):
+        super().__init__()
+    
     def struct_post(self, post):
         post = post.get('node', {})
         return {

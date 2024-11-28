@@ -2,6 +2,7 @@
 from datetime import datetime, timezone
 import json
 import os
+import time
 import urllib.request
 import base64
 from typing import Literal, Union
@@ -17,7 +18,8 @@ SETTINGS = tools.read_settings()
 
 
 class ImgHandler:
-    imgs = []
+    def __init__(self):
+        self.imgs = []
     
     def get(self, img_url: str, name: str | None = None):
         if not name:
@@ -42,10 +44,13 @@ class ImgHandler:
             print(f"img save in {filename}")
 
 class BaseScrape(ABC):
-    img_handler = ImgHandler()
-    raw_data = None
-    clean_data = None
-    bs64_data = None
+    
+    def __init__(self):
+        super().__init__()
+        self.img_handler = ImgHandler()
+        self.raw_data = None
+        self.clean_data = None
+        self.bs64_data = None
     
     def struct_profile(self, profile: dict):
         raise NotImplementedError("Must implement in children class")
@@ -57,6 +62,7 @@ class BaseScrape(ABC):
         raise NotImplementedError("Must implement in children class")
     
     def _convert_bs64(self, clean_data: dict):
+        time_s = SETTINGS.get('gral', {}).get('img_scrape_sleep_s', 2)
         data = deepcopy(clean_data)
         profile = data.get('profile', {})
         posts = data.get('posts', [])
@@ -81,6 +87,8 @@ class BaseScrape(ABC):
             except Exception as e:
                 logger.error(f'Img cant be scraped to bs64 - url: {post['img']}, error: {e}')
                 img64 = None
+            
+            time.sleep(time_s)
             
             posts[_]['img'] = img64
             print(f'{i} / {total} posts img scraped')

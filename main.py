@@ -28,34 +28,36 @@ def main():
     if args.clear:
         tools.rm_dir('dist/')
     
+    tools.make_dir('dist')
+    
     if args.youtube:
-        obj = Youtube(key)
+        youtube = Youtube(key)
         if args.save_imgs:
-            obj.get(args.youtube, type='bs64')
+            youtube.get(args.youtube, type='bs64')
         else:
-            obj.get(args.youtube, type='clean')
-        obj.save()
+            youtube.get(args.youtube, type='clean')
+        youtube.save()
     if args.instagram:
-        obj = Instagram()
+        instagram = Instagram()
         if args.save_imgs:
-            obj.get(args.instagram, type='bs64')
+            instagram.get(args.instagram, type='bs64')
         else:
-            obj.get(args.instagram, type='clean')
-        obj.save()
+            instagram.get(args.instagram, type='clean')
+        instagram.save()
     if args.tiktok:
-        obj = Tiktok()
+        tiktok = Tiktok()
         if args.save_imgs:
-            obj.get(args.tiktok, type='bs64')
+            tiktok.get(args.tiktok, type='bs64')
         else:
-            obj.get(args.tiktok, type='clean')
-        obj.save()
+            tiktok.get(args.tiktok, type='clean')
+        tiktok.save()
     if args.x:
-        obj = X()
+        x = X()
         if args.save_imgs:
-            obj.get(args.x, type='bs64')
+            x.get(args.x, type='bs64')
         else:
-            obj.get(args.x, type='clean')
-        obj.save()
+            x.get(args.x, type='clean')
+        x.save()
     
     
 

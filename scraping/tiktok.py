@@ -15,6 +15,9 @@ SETTINGS = tools.read_settings()
 
 class Tiktok(BaseScrape):
     
+    def __init__(self):
+        super().__init__()
+    
     def struct_profile(self, profile):
         return {
             'id': profile.get('id'),
