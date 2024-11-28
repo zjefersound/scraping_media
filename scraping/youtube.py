@@ -42,7 +42,7 @@ class Youtube(BaseScrape):
             'user': snippet.get('channelId'),
             'title': snippet.get('title'),
             'date': snippet.get('publishedAt'),
-            'img': snippet.get('thumbnails', {}).get('high', {}).get('url'),
+            'img': snippet.get('thumbnails', {}).get('maxres', {}).get('url'),
             'stats': {
                 'views': int(stats.get('viewCount')) if stats.get('viewCount').isnumeric() else None,
                 'likes': int(stats.get('likeCount')) if stats.get('likeCount').isnumeric() else None,
