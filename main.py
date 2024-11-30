@@ -7,7 +7,6 @@ import argparse
 
 
 def main():
-    key = tools.read_settings('env.json').get('apikey')
     
     parser = argparse.ArgumentParser(
                         prog='Scraping Media Tool',
@@ -31,6 +30,7 @@ def main():
     tools.make_dir('dist')
     
     if args.youtube:
+        key = tools.read_settings('env.json').get('apikey')
         youtube = Youtube(key)
         if args.save_imgs:
             youtube.get(args.youtube, type='bs64')
