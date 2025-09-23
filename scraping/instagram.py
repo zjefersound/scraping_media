@@ -70,6 +70,32 @@ class Instagram(BaseScrape):
         wait_time = SETTINGS.get('instagram', {}).get('time_ms', 6000)
 
         iphone_13 = playwright.devices['iPhone 13']
+        browser = playwright.chromium.launch(headless=headless, slow_mo=100)
+        iphone_13.pop('viewport', None)
+
+        context = browser.new_context(**iphone_13)
+        page = context.new_page()
+        
+        page.on('response', self.__handle_response)
+        
+        page.goto(
+            f"https://www.instagram.com/{username}/?hl=en",
+            timeout=60000,
+            wait_until="domcontentloaded"
+        )
+
+        # Better wait: network idle instead of fixed sleep
+        page.wait_for_load_state("networkidle", timeout=60000)
+
+        page.screenshot(path="debug.png", full_page=True)
+        
+        browser.close()
+
+    def __run2(self, playwright: Playwright, username: str) -> None:
+        headless = SETTINGS.get('gral', {}).get('headless', True)        
+        wait_time = SETTINGS.get('instagram', {}).get('time_ms', 6000)
+
+        iphone_13 = playwright.devices['iPhone 13']
         browser = playwright.webkit.launch(headless=headless)
         iphone_13.pop('viewport', None)
 
@@ -80,12 +106,14 @@ class Instagram(BaseScrape):
         page = context.new_page()
         
         page.on('response', self.__handle_response)
-        page.goto(f'https://www.instagram.com/{username}/?hl=en')
-        
+        # page.goto(f'https://www.instagram.com/{username}/?hl=en')
+        page.goto(f"https://www.instagram.com/{username}/?hl=en", timeout=60000, wait_until="domcontentloaded")
+        page.wait_for_selector("script[type='application/ld+json']", timeout=15000)
+
         page.wait_for_timeout(wait_time)
         
         browser.close()
-    
+
     def __handle_response(self, response):
         try:
             response_body = response.body().decode('utf-8')
@@ -128,4 +156,6 @@ class Instagram(BaseScrape):
         }
 
     def save(self):
-        self._save('dist/instagram')
+        # save fake or real images
+        self._save('dist/instagram/fake')
+        # self._save('dist/instagram')

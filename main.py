@@ -4,8 +4,6 @@ from scraping import *
 import argparse
 
 
-
-
 def main():
     
     parser = argparse.ArgumentParser(
@@ -29,6 +27,7 @@ def main():
     
     tools.make_dir('dist')
     
+    print("Running...")
     if args.youtube:
         key = tools.read_settings('env.json').get('apikey')
         youtube = Youtube(key)

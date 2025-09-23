@@ -21,6 +21,17 @@ class ImgHandler:
     def __init__(self):
         self.imgs = []
     
+    # def get2(self, img_url: str, name: str | None = None):
+    #     if not name:
+    #         name = uuid4().hex
+        
+    #     with urllib.request.urlopen(img_url) as img_response:
+    #         img_data = img_response.read()
+        
+    #     img_base64 = base64.b64encode(img_data).decode('utf-8')
+    #     self.imgs.append({'img': img_base64, 'name': name})
+    #     return img_base64
+    
     def get(self, img_url: str, name: str | None = None):
         if not name:
             name = uuid4().hex
@@ -28,9 +39,17 @@ class ImgHandler:
         with urllib.request.urlopen(img_url) as img_response:
             img_data = img_response.read()
         
-        img_base64 = base64.b64encode(img_data).decode('utf-8')
-        self.imgs.append({'img': img_base64, 'name': name})
-        return img_base64
+        ext = '.mp4' if '.mp4' in img_url else '.jpeg'
+        filename = name + ext
+
+        # Only convert images to base64
+        if ext != '.mp4':
+            img_base64 = base64.b64encode(img_data).decode('utf-8')
+            self.imgs.append({'img': img_base64, 'name': name})
+            return img_base64
+        
+        return filename
+
 
     def save(self, root: str):
         if not self.imgs:
@@ -72,11 +91,13 @@ class BaseScrape(ABC):
                 img64 = self.img_handler.get(profile['img'], name='profile_img')
                 profile['img'] = img64
             except Exception as e:
-                logger.error(f'Img cant be scraped to bs64 - url: {profile['img']}, error: {e}')
+                logger.error(f'Img cant be scraped to bs64 - url: {profile["img"]}, error: {e}')
                 pass
         
         post_notna = [post for post in posts if post.get('img')]
         total = len(post_notna)
+        # max_posts = 10
+        # total = min(len(post_notna), max_posts)
         i = 1
         for _, post in enumerate(posts):
             if not post.get('img'):
@@ -85,7 +106,7 @@ class BaseScrape(ABC):
             try:
                 img64 = self.img_handler.get(post['img'], name=post['id'])    
             except Exception as e:
-                logger.error(f'Img cant be scraped to bs64 - url: {post['img']}, error: {e}')
+                logger.error(f'Img cant be scraped to bs64 - url: {post["img"]}, error: {e}')
                 img64 = None
             
             time.sleep(time_s)
