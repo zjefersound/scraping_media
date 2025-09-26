@@ -37,15 +37,24 @@ class Youtube(BaseScrape):
     def struct_post(self, post):
         snippet = post.get('snippet', {})
         stats = post.get('statistics', {})
+        thumbnails = snippet.get('thumbnails', {})
+
+        img_url = (
+            thumbnails.get('maxres', {}).get('url') or
+            thumbnails.get('high', {}).get('url') or
+            thumbnails.get('medium', {}).get('url') or
+            thumbnails.get('default', {}).get('url')
+        )
+        
         return {
             'id': post.get('id'),
             'user': snippet.get('channelId'),
             'title': snippet.get('title'),
             'date': snippet.get('publishedAt'),
-            'img': snippet.get('thumbnails', {}).get('maxres', {}).get('url'),
+            'img': img_url,
             'stats': {
                 'views': int(stats.get('viewCount')) if stats.get('viewCount').isnumeric() else None,
-                'likes': int(stats.get('likeCount')) if stats.get('likeCount').isnumeric() else None,
+                'likes': int(stats.get('likeCount')) if str(stats.get('likeCount')).isnumeric() else None,
                 'favorites': int(stats.get('favoriteCount')) if stats.get('favoriteCount').isnumeric() else None,
                 'comments': int(stats.get('commentCount')) if stats.get('commentCount').isnumeric() else None,
             }
@@ -163,6 +172,8 @@ class Youtube(BaseScrape):
             'profile': profile,
             'posts': posts
         }
-    
-    def save(self):
-        self._save('./dist/youtube')
+
+    def save(self, username):
+        username = username[1:]
+        self._save(f"dist/youtube/{username}")
+        self.img_handler.imgs

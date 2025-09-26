@@ -9,6 +9,7 @@ from typing import Literal, Union
 from abc import ABC
 from uuid import uuid4
 from copy import deepcopy
+from PIL import Image
 
 from utils import tools
 from logs import setup_logger
@@ -61,6 +62,26 @@ class ImgHandler:
             with open(filename, "wb") as file:
                 file.write(image_data) 
             print(f"img save in {filename}")
+            # ---- Crop/resize to vertical ----
+            try:
+                with Image.open(filename) as im:
+                    w, h = im.size
+                    if w > h:  # landscape → crop to vertical (center)
+                        new_w = int(h * 9 / 16)  # keep 9:16 ratio
+                        left = (w - new_w) // 2
+                        right = left + new_w
+                        im = im.crop((left, 0, right, h))
+                    elif w < h:  # portrait → crop top-bottom if needed
+                        new_h = int(w * 16 / 9)
+                        top = (h - new_h) // 2
+                        bottom = top + new_h
+                        im = im.crop((0, top, w, bottom))
+
+                    # Overwrite original file
+                    im.save(filename, "JPEG")
+                    print(f"img cropped & replaced in {filename}")
+            except Exception as e:
+                print(f"Skipping crop for {filename}: {e}")
 
 class BaseScrape(ABC):
     

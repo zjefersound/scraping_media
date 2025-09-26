@@ -35,14 +35,14 @@ def main():
             youtube.get(args.youtube, type='bs64')
         else:
             youtube.get(args.youtube, type='clean')
-        youtube.save()
+        youtube.save(args.youtube)
     if args.instagram:
         instagram = Instagram()
         if args.save_imgs:
             instagram.get(args.instagram, type='bs64')
         else:
             instagram.get(args.instagram, type='clean')
-        instagram.save()
+        instagram.save(args.instagram)
     if args.tiktok:
         tiktok = Tiktok()
         if args.save_imgs:

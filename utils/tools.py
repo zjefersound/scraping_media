@@ -5,7 +5,7 @@ import shutil
 import json
 from collections import Counter
 from datetime import datetime, timezone
-
+from PIL import Image
 
 def make_dir(path: str):
     if not os.path.exists(path):
@@ -104,3 +104,23 @@ def mostcommon(data: list[dict]) -> dict:
 def find_tags(text: str) -> list[str]:
         pattern = r'#\w+'
         return re.findall(pattern, text)
+
+
+def crop_to_vertical(path_in, path_out, ratio=(9, 16)):
+    img = Image.open(path_in)
+    w, h = img.size
+
+    # target aspect ratio
+    target_w = int(h * ratio[0] / ratio[1])
+
+    if target_w > w:
+        # if target width is larger than image, fallback (avoid distortion)
+        img.save(path_out)
+        return
+
+    # crop center horizontally
+    left = (w - target_w) // 2
+    right = left + target_w
+    img_cropped = img.crop((left, 0, right, h))
+
+    img_cropped.save(path_out)
