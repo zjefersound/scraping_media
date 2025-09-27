@@ -6,7 +6,7 @@
         "img_scrape_sleep_s": 1
     },
     "youtube": {
-        "max_posts": 10
+        "max_posts": 20
     },
     "x": {
         "time_ms": 6000,

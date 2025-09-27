@@ -29,7 +29,7 @@ def main():
     
     print("Running...")
     if args.youtube:
-        key = tools.read_settings('env.json').get('apikey')
+        key = tools.read_settings('env.json').get('yt_api_key')
         youtube = Youtube(key)
         if args.save_imgs:
             youtube.get(args.youtube, type='bs64')
