@@ -4,6 +4,8 @@ from logs import setup_logger
 from utils import tools
 from .base import BaseScrape, RequestsHandler
 
+import pandas as pd
+
 logger = setup_logger(__name__)
 SETTINGS = tools.read_settings()
 
@@ -172,8 +174,55 @@ class Youtube(BaseScrape):
             'profile': profile,
             'posts': posts
         }
+    
+    def to_dataframe(self, data: dict | None = None) -> pd.DataFrame:
+        """
+        Converte os dados estruturados (clean ou bs64) em um DataFrame do pandas.
+        
+        :param data: Dicionário com as chaves 'profile' e 'posts'. 
+                     Se None, usa self.clean_data (último resultado gerado).
+        :return: pandas.DataFrame com colunas combinando metadados do perfil e dos posts.
+        """
+        if data is None:
+            data = self.clean_data or self.bs64_data
+
+        if not data or "profile" not in data or "posts" not in data:
+            logger.error("Youtube.to_dataframe - Dados inválidos ou ausentes para conversão")
+            return pd.DataFrame()
+
+        profile = data["profile"]
+        posts = data["posts"]
+
+        rows = []
+        for post in posts:
+            row = {
+                "post_id": post.get("id"),
+                "user_id": profile.get("id"),
+                "username": profile.get("username"),
+                "name": profile.get("name"),
+                "desc": profile.get("desc"),
+                "country": profile.get("country"),
+                "followers": profile["stats"].get("followers"),
+                "profile_views": profile["stats"].get("views"),
+                "profile_posts": profile["stats"].get("posts"),
+                "title": post.get("title"),
+                "date": post.get("date"),
+                "post_views": post["stats"].get("views"),
+                "likes": post["stats"].get("likes"),
+                "favorites": post["stats"].get("favorites"),
+                "comments": post["stats"].get("comments"),
+            }
+            rows.append(row)
+
+        df = pd.DataFrame(rows)
+
+        # Conversão de datas para datetime e preenchimento de valores nulos
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+        df.fillna(0, inplace=True)
+
+        return df
 
     def save(self, username):
         username = username[1:]
-        self._save(f"dist/youtube/{username}")
+        self._save(f"dist/youtube/real")
         self.img_handler.imgs
