@@ -224,5 +224,5 @@ class Youtube(BaseScrape):
 
     def save(self, username):
         username = username[1:]
-        self._save(f"dist/youtube/real")
+        self._save(f"dist/youtube/train/real")
         self.img_handler.imgs
