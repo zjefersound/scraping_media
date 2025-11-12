@@ -52,6 +52,7 @@ class Youtube(BaseScrape):
             'id': post.get('id'),
             'user': snippet.get('channelId'),
             'title': snippet.get('title'),
+            'description': snippet.get('description'),
             'date': snippet.get('publishedAt'),
             'img': img_url,
             'stats': {
@@ -222,7 +223,6 @@ class Youtube(BaseScrape):
 
         return df
 
-    def save(self, username):
-        username = username[1:]
-        self._save(f"dist/youtube/train/real")
+    def save(self, dir_name="dist/youtube"):
+        self._save(dir_name)
         self.img_handler.imgs
