@@ -2,6 +2,7 @@
 import csv
 import os
 import random
+import json
 from collections import defaultdict
 from scraping import Youtube
 from utils import tools
@@ -15,11 +16,31 @@ TEST_PROPORTION = 0.2
 VALIDATION_PROPORTION = 0.1
 
 BASE_DIR = "dist"
+CACHE_FILE = os.path.join(BASE_DIR, "completed_users.json")
 
 
 # ===========================
 # FUNÇÕES AUXILIARES
 # ===========================
+def load_completed_users():
+    """Carrega usernames já processados com sucesso do cache."""
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+            try:
+                return set(json.load(f))
+            except json.JSONDecodeError:
+                return set()
+    return set()
+
+
+def save_completed_user(username):
+    """Adiciona um username processado com sucesso ao cache."""
+    completed = load_completed_users()
+    completed.add(username)
+    with open(CACHE_FILE, "w", encoding="utf-8") as f:
+        json.dump(sorted(list(completed)), f, ensure_ascii=False, indent=2)
+
+
 def split_usernames(usernames):
     """Divide usernames nas proporções de treino, teste e validação."""
     random.shuffle(usernames)
@@ -88,6 +109,8 @@ def run_batch_by_category(strategy, usernames_real, usernames_brainrot, save_img
     """Executa scraping dividido por categoria e salva datasets."""
     ensure_dirs(BASE_DIR)
 
+    completed = load_completed_users()
+
     if strategy == "y":
         key = tools.read_settings("env.json").get("yt_api_key")
         if not key:
@@ -114,6 +137,11 @@ def run_batch_by_category(strategy, usernames_real, usernames_brainrot, save_img
                 if not username:
                     continue
 
+                # Pula usernames já processados
+                if username in completed:
+                    print(f"[skip] {username} já processado anteriormente.")
+                    continue
+
                 try:
                     print(f"[{split.upper()}] {category} -> {username}")
 
@@ -132,8 +160,11 @@ def run_batch_by_category(strategy, usernames_real, usernames_brainrot, save_img
                         report[key]["users"].add(profile.get("username"))
                         report[key]["posts"] += len(posts)
 
+                        # Marca como completo
+                        save_completed_user(username)
+
                 except Exception as e:
-                    print(f"ERROR with {username}: {e}")
+                    print(f"❌ ERROR with {username}: {e}")
                     continue
 
     # Exibe relatório final
@@ -177,8 +208,8 @@ if __name__ == "__main__":
         "@sungkepgameshorts",
         "@Ronalvagundes-r9",
         "@JANNATIYT1",
-        "@tralalelooffice1",
         "@TalezoraAi",
+        "@catlove-b4x"
     ]
 
     run_batch_by_category(
