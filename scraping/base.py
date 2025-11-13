@@ -82,6 +82,8 @@ class ImgHandler:
                     print(f"img cropped & replaced in {filename}")
             except Exception as e:
                 print(f"Skipping crop for {filename}: {e}")
+        
+        self.imgs = []
 
 class BaseScrape(ABC):
     
@@ -107,18 +109,16 @@ class BaseScrape(ABC):
         profile = data.get('profile', {})
         posts = data.get('posts', [])
         
-        if profile.get('img'):
-            try:
-                img64 = self.img_handler.get(profile['img'], name='profile_img')
-                profile['img'] = img64
-            except Exception as e:
-                logger.error(f'Img cant be scraped to bs64 - url: {profile["img"]}, error: {e}')
-                pass
+        # if profile.get('img'): # Não salvar profile momentaneamente
+        #     try:
+        #         img64 = self.img_handler.get(profile['img'], name='profile_img')
+        #         profile['img'] = img64
+        #     except Exception as e:
+        #         logger.error(f'Img cant be scraped to bs64 - url: {profile["img"]}, error: {e}')
+        #         pass
         
         post_notna = [post for post in posts if post.get('img')]
         total = len(post_notna)
-        # max_posts = 10
-        # total = min(len(post_notna), max_posts)
         i = 1
         for _, post in enumerate(posts):
             if not post.get('img'):
@@ -159,9 +159,9 @@ class BaseScrape(ABC):
 
     def _save(self, dir_name: str):
         root = tools.make_dir(dir_name)
-        tools.save_dict(self.raw_data, 'raw', root, stamp=False)
-        tools.save_dict(self.clean_data, 'clean', root, stamp=False)
-        tools.save_dict(self.bs64_data, 'bs64', root, stamp=False)
+        # tools.save_dict(self.raw_data, 'raw', root, stamp=False)
+        # tools.save_dict(self.clean_data, 'clean', root, stamp=False)
+        # tools.save_dict(self.bs64_data, 'bs64', root, stamp=False)
         self.img_handler.save(root=root)
 
 class RequestsHandler:

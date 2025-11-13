@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 import csv
 import os
 import random
+from collections import defaultdict
 from scraping import Youtube
 from utils import tools
 
@@ -34,8 +36,8 @@ def split_usernames(usernames):
 
 
 def ensure_dirs(base_dir):
-    tools.make_dir(base_dir)
     """Cria estrutura de diretórios esperada."""
+    tools.make_dir(base_dir)
     for split in ["train", "test", "validation"]:
         tools.make_dir(f"{base_dir}/{split}")
         for category in ["real", "brainrot"]:
@@ -43,6 +45,7 @@ def ensure_dirs(base_dir):
 
 
 def clean_text(value):
+    """Remove quebras de linha, tabs e espaços extras do texto."""
     if not isinstance(value, str):
         return value
     return (
@@ -94,6 +97,9 @@ def run_batch_by_category(strategy, usernames_real, usernames_brainrot, save_img
     else:
         raise ValueError(f"Invalid strategy '{strategy}', must be 'y'")
 
+    # Estatísticas de execução
+    report = defaultdict(lambda: {"posts": 0, "users": set()})
+
     # Divide listas
     splits = ["train", "test", "validation"]
     real_splits = split_usernames(usernames_real)
@@ -118,11 +124,31 @@ def run_batch_by_category(strategy, usernames_real, usernames_brainrot, save_img
                     if data:
                         profile = data.get("profile", {})
                         posts = data.get("posts", [])
+
                         append_to_csv(csv_path, platform, profile, posts)
+
+                        # Atualiza relatório
+                        key = f"{split}_{category}"
+                        report[key]["users"].add(profile.get("username"))
+                        report[key]["posts"] += len(posts)
 
                 except Exception as e:
                     print(f"ERROR with {username}: {e}")
                     continue
+
+    # Exibe relatório final
+    print("\n" + "=" * 60)
+    print("📊 RELATÓRIO FINAL DE EXECUÇÃO")
+    print("=" * 60)
+
+    for key, data in report.items():
+        split, category = key.split("_")
+        print(f"{split.upper()} - {category.capitalize()}")
+        print(f"  • Usernames distintos: {len(data['users'])}")
+        print(f"  • Total de posts: {data['posts']}\n")
+
+    print("✅ Dataset gerado com sucesso em /dist/")
+    print("=" * 60 + "\n")
 
 
 # ===========================
@@ -142,7 +168,7 @@ if __name__ == "__main__":
         "@GLArt",
     ]
 
-    usernames_brainrot = [ # 10 users
+    usernames_brainrot = [
         "@SHORT9999-s3t", 
         "@warungtungtung", 
         "@Kerstle", 
@@ -161,5 +187,3 @@ if __name__ == "__main__":
         usernames_brainrot=usernames_brainrot,
         save_imgs=True
     )
-
-    print("\n✅ Dataset gerado com sucesso em /dist/")
